@@ -1,0 +1,26 @@
+# dependencies
+**/node_modules/
+
+# env files
+**/.env
+
+# builds
+**/dist/
+**/build/
+
+# logs
+**/*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# React build output
+client/build/
+
+# TypeScript cache
+**/*.tsbuildinfo
