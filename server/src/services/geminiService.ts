@@ -24,31 +24,28 @@ function cleanJsonResponse(text: string) {
     .trim();
 }
 
-async function repairFunction(
-  brokenJson: string,
-  validationError: unknown
-) {
+async function repairFunction(brokenJson: string, validationError: unknown) {
   const result = await model.generateContent(`
-You are a JSON repair system.
+  You are a JSON repair system.
 
-Fix the JSON below.
+  Fix the JSON below.
 
-Validation Error:
-${JSON.stringify(validationError, null, 2)}
+  Validation Error:
+  ${JSON.stringify(validationError, null, 2)}
 
-JSON:
-${brokenJson}
+  JSON:
+  ${brokenJson}
 
-Rules:
-- Return ONLY valid JSON
-- Do not add explanations
-- Preserve existing data
-- Fix structure and types only
-`);
+  Rules:
+  - Return ONLY valid JSON
+  - Do not add explanations
+  - Preserve existing data
+  - Fix structure and types only
+  `);
 
-  return cleanJsonResponse(
-    result.response.text()
-  );
+    return cleanJsonResponse(
+      result.response.text()
+    );
 }
 
 async function validateWithRepair(text: string) {
@@ -137,15 +134,11 @@ export const processInvoice = async (filePath: string, mimeType: string) => {
       `,
     ]);
 
-  let text = cleanJsonResponse(
-    result.response.text()
-  );
+  let text = cleanJsonResponse(result.response.text());
+  const invoiceData = await validateWithRepair(text);
+  const savedInvoice = await Invoice.create(invoiceData);
+  await fs.promises.unlink(filePath);
 
-  const invoiceData =
-    await validateWithRepair(text);
-
-  const savedInvoice =
-    await Invoice.create(invoiceData);
 
   return savedInvoice;
 };
