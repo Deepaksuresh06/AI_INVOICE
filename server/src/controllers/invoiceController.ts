@@ -4,22 +4,38 @@ import { Invoice } from '../models/invoiceJSONModel'
 import mongoose from 'mongoose';
 import { UpdateInvoiceSchema } from '../types/invoiceSchema';
 
-export const uploadInvoice = async(req: Request, res: Response) => {
-
-    try {
-        const file = req.file;
-        if(!file) {
-            return res.status(404).json({message : "File not Found"});
-        }
-        const invoice = await processInvoice(file.path, file.mimetype);
-
-        return res.status(200).json({ success: true, invoice});
+export const uploadInvoice = async (req: Request, res: Response) => {
+  try {
+    const file = req.file;
+    if (!file) {
+      return res.status(400).json({ message: "File not provided" });
     }
-    catch(error) {
-        console.error(error);
-        return res.status(500).json({success: false, messege: "error in invoice processing"});
-    }
-}
+
+    const invoice = await processInvoice(file.path, file.mimetype);
+
+    return res.status(200).json({ success: true, invoice });
+  } catch (error) {
+    // Include file metadata to speed up debugging client/server mismatch
+    const fileInfo = req.file
+      ? { name: req.file.originalname, mimetype: req.file.mimetype, size: req.file.size }
+      : null;
+
+    console.error("Upload processing error:", { fileInfo, error });
+
+    const message =
+      error instanceof Error ? error.message : typeof error === "string" ? error : String(error);
+
+    // Validation-like failures (Gemini output / Zod validation) should be 422
+    // Heuristic: schema/JSON/validation errors.
+    const looksLikeValidation = /validation|json|parse/i.test(message);
+
+    return res.status(looksLikeValidation ? 422 : 500).json({
+      success: false,
+      message,
+      fileInfo,
+    });
+  }
+};
 
 export const getInvoices = async (req: Request, res: Response) => {
     try {

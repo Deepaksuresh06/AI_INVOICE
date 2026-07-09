@@ -1,14 +1,16 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 import fs from "fs";
 import { Invoice } from "../models/invoiceJSONModel";
 import { InvoiceSchema } from "../types/invoiceSchema";
 
-const genAI = new GoogleGenerativeAI(
-  process.env.GEMINI_API_KEY!
-);
+const apiKey = process.env.GEMINI_API_KEY;
 
-const model = genAI.getGenerativeModel({
-  model: "gemini-1.5-flash",
+if (!apiKey) {
+  throw new Error("GEMINI_API_KEY is missing in .env");
+}
+
+const ai = new GoogleGenAI({
+  apiKey,
 });
 
 function fileToBase64(path: string) {
@@ -24,28 +26,34 @@ function cleanJsonResponse(text: string) {
     .trim();
 }
 
-async function repairFunction(brokenJson: string, validationError: unknown) {
-  const result = await model.generateContent(`
-  You are a JSON repair system.
+async function repairFunction(
+  brokenJson: string,
+  validationError: unknown
+) {
+  console.log("🔧 Repairing JSON...");
 
-  Fix the JSON below.
+  const result = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: `
+You are a JSON repair system.
 
-  Validation Error:
-  ${JSON.stringify(validationError, null, 2)}
+Fix the JSON below.
 
-  JSON:
-  ${brokenJson}
+Validation Error:
+${JSON.stringify(validationError, null, 2)}
 
-  Rules:
-  - Return ONLY valid JSON
-  - Do not add explanations
-  - Preserve existing data
-  - Fix structure and types only
-  `);
+JSON:
+${brokenJson}
 
-    return cleanJsonResponse(
-      result.response.text()
-    );
+Rules:
+- Return ONLY valid JSON
+- Do not add explanations
+- Preserve existing data
+- Fix structure and types only
+`,
+  });
+
+  return cleanJsonResponse(result.text ?? "");
 }
 
 async function validateWithRepair(text: string) {
@@ -55,20 +63,17 @@ async function validateWithRepair(text: string) {
     try {
       const parsed = JSON.parse(text);
 
-      const validation =
-        InvoiceSchema.safeParse(parsed);
+      const validation = InvoiceSchema.safeParse(parsed);
 
       if (validation.success) {
         return validation.data;
       }
 
+      console.log(`❌ Validation failed (Attempt ${attempt})`);
+
       if (attempt === MAX_ATTEMPTS) {
         throw new Error(
-          JSON.stringify(
-            validation.error.format(),
-            null,
-            2
-          )
+          JSON.stringify(validation.error.format(), null, 2)
         );
       }
 
@@ -76,69 +81,111 @@ async function validateWithRepair(text: string) {
         text,
         validation.error.format()
       );
-    } catch (error) {
+    } catch (err) {
+      console.log(`❌ JSON Parse failed (Attempt ${attempt})`);
+
       if (attempt === MAX_ATTEMPTS) {
-        throw error;
+        throw err;
       }
 
-      text = await repairFunction(
-        text,
-        error
-      );
+      text = await repairFunction(text, err);
     }
   }
 
-  throw new Error(
-    "Unable to validate invoice"
-  );
+  throw new Error("Unable to validate invoice");
 }
 
-export const processInvoice = async (filePath: string, mimeType: string) => {
-  const imageBase64 =
-    fileToBase64(filePath);
+export const processInvoice = async (
+  filePath: string,
+  mimeType: string
+) => {
+  try {
+    console.log("📄 Reading invoice...");
 
-  const result =
-    await model.generateContent([
-      {
-        inlineData: {
-          data: imageBase64,
-          mimeType,
+    const imageBase64 = fileToBase64(filePath);
+
+    console.log("🤖 Sending to Gemini...");
+
+    const result = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: [
+        {
+          inlineData: {
+            mimeType,
+            data: imageBase64,
+          },
         },
-      },
+        {
+          text: `
+            You are an invoice extraction system.
+            Extract invoice information accurately.
+            Return ONLY valid JSON.
+            Rules:
+            - subtotal must be a NUMBER (24000.50)
+            - tax must be a NUMBER (4320)
+            - total must be a NUMBER (28320)
+            - Never return currency symbols.
+            - Never return commas inside numbers.
+            - Never return percentages.
+            - Currency must be exactly one of:
+              INR
+              USD
+              EUR
+              GBP
 
-      `
-      You are an invoice data extraction system.
+            Date format:
+            YYYY-MM-DD
 
-      Extract structured data from the invoice.
+            If a value is missing return null.
 
-      Return ONLY valid JSON.
+            No markdown.
+            No explanation.
+            Only JSON.
 
-      {
-        "invoice_number": string | null,
-        "date": string | null,
-        "supplier": string | null,
-        "buyer": string | null,
-        "items": [
-          {
-            "name": string,
-            "quantity": number,
-            "price": number,
-            "total": number
-          }
-        ],
-        "subtotal": number | null,
-        "tax": number | null,
-        "total": number | null,
-        "currency": "INR" | "USD" | "EUR" | "GBP" | null
-      }
-      `,
-    ]);
+            {
+              "invoice_number": string | null,
+              "date": string | null,
+              "supplier": string | null,
+              "buyer": string | null,
+              "items": [
+                {
+                  "name": string,
+                  "quantity": number,
+                  "price": number,
+                  "total": number
+                }
+              ],
+              "subtotal": number | null,
+              "tax": number | null,
+              "total": number | null,
+              "currency": "INR" | "USD" | "EUR" | "GBP" | null
+            }`,
+        },
+      ],
+    });
 
-  let text = cleanJsonResponse(result.response.text());
-  const invoiceData = await validateWithRepair(text);
-  const savedInvoice = await Invoice.create(invoiceData);
-  await fs.promises.unlink(filePath);
+    console.log("✅ Gemini Response Received");
 
+    const text = cleanJsonResponse(result.text ?? "");
 
-  return savedInvoice;
+    console.log(text);
+
+    const invoiceData = await validateWithRepair(text);
+
+    console.log("✅ Validation Successful");
+
+    const savedInvoice = await Invoice.create(invoiceData);
+
+    console.log("✅ Saved to MongoDB");
+
+    await fs.promises.unlink(filePath);
+
+    console.log("🗑 Uploaded image deleted");
+
+    return savedInvoice;
+  } catch (error) {
+    console.error("Gemini Service Error:", error);
+
+    throw error;
+  }
 };
