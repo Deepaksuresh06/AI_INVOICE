@@ -4,5 +4,13 @@
 
 body {
   margin: 0;
-  background: #020617;
 }
+
+html {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
