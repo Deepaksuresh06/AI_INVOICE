@@ -83,9 +83,7 @@ function DashBoard() {
     }, 100);
 
     try {
-      const response = await api.post(`/upload`, formData);
-      console.log(response);
-      alert("File uploaded successfully");
+      await api.post(`/upload`, formData)
 
       window.clearInterval(timer);
       setUploadProgress(100);
@@ -201,13 +199,7 @@ function DashBoard() {
             <h1 className="text-3xl sm:text-4xl font-bold text-slate-900">Dashboard</h1>
             <p className="text-slate-500 mt-2">Upload invoices and track extracted totals in seconds.</p>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="rounded-full bg-white border border-slate-200 px-3 py-2 shadow-sm">
-              <p className="text-xs text-slate-600">
-                Backend: <span className="font-semibold">{uploading ? "Processing" : "Ready"}</span>
-              </p>
-            </div>
-          </div>
+
         </motion.div>
 
         {/* Stats */}
@@ -253,9 +245,7 @@ function DashBoard() {
                           {card.value}
                         </p>
                       </div>
-                      <div className={`h-10 w-10 rounded-xl ${card.accent} flex items-center justify-center`}> 
-                        <div className="text-lg">✨</div>
-                      </div>
+
                     </div>
                   </motion.div>
                 ))}
@@ -325,7 +315,8 @@ function DashBoard() {
                   exit={{ opacity: 0 }}
                   className="space-y-3"
                 >
-                  {invoices.slice(0, 5).map((invoice, idx) => (
+                  {invoices.slice(0, 4).map((invoice, idx) => (
+
                     <motion.div
                       key={invoice._id}
                       initial={{ opacity: 0, y: 8 }}

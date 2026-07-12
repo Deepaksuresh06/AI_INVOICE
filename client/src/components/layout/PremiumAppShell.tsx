@@ -1,58 +1,97 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import { Toaster } from 'react-hot-toast'
-import { LandingBackground } from '../LandingBackground'
-
-type Theme = 'light' | 'dark'
-
-function getInitialTheme(): Theme {
-  const stored = localStorage.getItem('theme')
-  if (stored === 'light' || stored === 'dark') return stored
-  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
-  return prefersDark ? 'dark' : 'light'
-}
+import React, { useMemo } from 'react';
+import { brand, focusRing } from '../../theme/tokens';
+import { useTheme } from '../../theme/useTheme';
+import { cn } from '../../lib/cn';
+import { useLocation } from "react-router-dom";
 
 export default function PremiumAppShell({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(() => {
-    // localStorage/matchMedia are only available in browser; this app is client-rendered
-    try {
-      return getInitialTheme()
-    } catch {
-      return 'dark'
-    }
-  })
+  const { isDark, toggleTheme } = useTheme()
+  const themeLabel = useMemo(() => (isDark ? 'Dark' : 'Light'), [isDark])
 
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', theme === 'dark')
-    localStorage.setItem('theme', theme)
-  }, [theme])
-
-  const themeLabel = useMemo(() => (theme === 'dark' ? 'Dark' : 'Light'), [theme])
+  const location = useLocation();
+  const hideNavbar = location.pathname === "/";
 
   return (
-    <div className="relative min-h-screen bg-white dark:bg-[#020617] transition-colors">
-      <div className="fixed inset-0 -z-10 pointer-events-none">
-        <LandingBackground />
-      </div>
+    <div className="relative min-h-screen bg-surface text-content transition-theme">
 
-      <header className="relative z-10 flex items-center justify-end px-5 sm:px-6 py-3">
-        <button
-          type="button"
-          onClick={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
-          className="group inline-flex items-center gap-2 rounded-2xl border border-slate-200 dark:border-white/10 bg-white/70 dark:bg-white/5 backdrop-blur px-3 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-white/10 transition"
-          aria-label={`Switch theme (current: ${themeLabel})`}
-        >
-          <span className="text-base">{theme === 'dark' ? '🌙' : '☀️'}</span>
-          <span className="hidden sm:inline">{theme === 'dark' ? 'Dark' : 'Light'} mode</span>
-        </button>
-      </header>
+      {/* Premium Sticky Navbar */}
+      {!hideNavbar &&(
+      <header className="sticky top-0 z-40">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-3">
+          <div
+            className={cn(
+              'rounded-2xl border border-border-subtle bg-surface-glass backdrop-blur shadow-glass',
+            )}
+          >
+            <div className="flex items-center justify-between px-4 sm:px-5 py-3">
+              {/* Left brand */}
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-brand shadow-lg">
+                  <span className="text-sm font-black text-white">IQ</span>
+                </div>
 
-      <main className="relative z-10">
-        {children}
-      </main>
+                <div className="min-w-0">
+                  <h1 className="text-lg font-black tracking-tight">
+                    <span className="text-content">Invoice</span>
+                    <span className="bg-gradient-brand bg-clip-text text-transparent">IQ</span>
+                  </h1>
+                </div>
+              </div>
 
-      <Toaster />
+              {/* Right theme toggle */}
+              <button
+                type="button"
+                onClick={toggleTheme}
+                aria-label={`Switch theme (currently ${themeLabel})`}
+                className={cn(
+                  'group relative inline-flex items-center gap-2 rounded-xl',
+                  'border border-border bg-surface-glass p-2',
+                  'text-sm font-semibold text-content shadow-sm',
+                  'transition-all duration-200 hover:-translate-y-px',
+                  focusRing,
+                )}
+              >
+                <span className="relative z-10 inline-flex items-center gap-2">
+                  <span className={cn('transition-all duration-300', isDark ? 'opacity-80' : 'opacity-100')}>
+                    {isDark ? '🌙' : '☀️'}
+                  </span>
+                </span>
+
+                {/* Animated thumb */}
+                <span
+                  className="relative z-10 h-6 w-12 rounded-full bg-surface-subtle overflow-hidden"
+                  aria-hidden="true"
+                >
+                  <span
+                    className={cn(
+                      'absolute top-0 left-0 h-full w-1/2 rounded-full transition-transform duration-300 ease-out',
+                      isDark ? 'translate-x-full' : 'translate-x-0',
+                    )}
+                    style={{
+                      background:
+                        'linear-gradient(to bottom right, rgba(99,102,241,0.25), rgba(34,211,238,0.25))',
+                    }}
+                  />
+
+                  <span
+                    className={cn(
+                      'absolute top-0.5 left-0.5 h-5 w-5 rounded-full shadow-sm transition-transform duration-300 ease-out bg-gradient-brand',
+                      isDark ? 'translate-x-6' : 'translate-x-0',
+                    )}
+                  />
+                </span>
+
+                <span
+                  className="absolute inset-0 rounded-xl bg-gradient-to-r from-brand-start/15 to-brand-end/15 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  aria-hidden="true"
+                />
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>)}
+
+      <main className="relative z-10 pt-4 sm:pt-6">{children}</main>
     </div>
   )
 }
-
-

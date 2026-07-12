@@ -278,15 +278,39 @@ export default function Invoices() {
     downloadText(`invoices_${new Date().toISOString().slice(0, 10)}.csv`, csv, "text/csv");
   };
 
+  const hasActiveFilters = query.trim().length > 0 || supplier !== "all" || currency !== "all";
+
   const emptyState = (
-    <div className="py-14 text-center">
-      <div className="mx-auto h-14 w-14 rounded-2xl bg-slate-100 flex items-center justify-center">
+    <div className="py-12 sm:py-16 text-center">
+      <div className="mx-auto h-14 w-14 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/70 dark:border-white/10 flex items-center justify-center">
         <span className="text-2xl">🧾</span>
       </div>
-      <p className="mt-4 font-semibold text-slate-900">No invoices found</p>
-      <p className="text-sm text-slate-500 mt-1">Try adjusting search/filter criteria.</p>
+
+      <p className="mt-4 font-bold text-slate-900 dark:text-slate-100">No invoices found</p>
+      <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+        {hasActiveFilters ? "Try adjusting search/filter criteria." : "Create invoices or adjust your filters to see results."}
+      </p>
+
+      {hasActiveFilters && (
+        <div className="mt-6">
+          <button
+            type="button"
+            onClick={() => {
+              setQuery("");
+              setSupplier("all");
+              setCurrency("all");
+              setSort({ key: "createdAt", dir: "desc" });
+              setPage(1);
+            }}
+            className="inline-flex items-center justify-center rounded-xl bg-slate-900 text-white px-4 py-2 text-sm font-semibold hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 transition"
+          >
+            Clear filters
+          </button>
+        </div>
+      )}
     </div>
   );
+
 
   const skeleton = (
     <div className="space-y-3">

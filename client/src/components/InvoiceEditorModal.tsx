@@ -319,16 +319,18 @@ export default function InvoiceEditorModal({ details, onClose, onUpdated }: Prop
         exit={{ opacity: 0, y: 10, scale: 0.98 }}
         transition={{ duration: 0.2 }}
       >
-        <div className="p-5 sm:p-6 border-b border-slate-100 flex items-start justify-between gap-4">
+      <div className="p-5 sm:p-6 border-b border-slate-100 dark:border-white/10 flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <p className="text-xs font-semibold text-slate-600">Edit Invoice</p>
-            <h3 className="text-2xl font-bold text-slate-900 truncate">{form.invoice_number || "—"}</h3>
-            <p className="text-xs text-slate-500 mt-1">Edit all invoice fields and save to persist changes.</p>
+            <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">Edit Invoice</p>
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white truncate">{form.invoice_number || "—"}</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              Edit all invoice fields and save to persist changes.
+            </p>
           </div>
 
           <div className="flex items-center gap-2">
             {dirty && (
-              <span className="text-xs font-semibold px-3 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-100">
+              <span className="text-xs font-semibold px-3 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-100 dark:bg-amber-500/15 dark:text-amber-200 dark:border-amber-500/30">
                 Unsaved
               </span>
             )}
@@ -336,7 +338,7 @@ export default function InvoiceEditorModal({ details, onClose, onUpdated }: Prop
             <button
               onClick={closeWithWarning}
               disabled={saving}
-              className="px-3 py-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 font-semibold"
+              className="px-3 py-2 rounded-xl bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-slate-900/60 font-semibold text-slate-900 dark:text-white"
             >
               Cancel
             </button>
@@ -344,6 +346,7 @@ export default function InvoiceEditorModal({ details, onClose, onUpdated }: Prop
         </div>
 
         <div className="p-5 sm:p-6 overflow-y-auto max-h-[70vh]">
+
           <AnimatePresence>
             {toast && (
               <motion.div
