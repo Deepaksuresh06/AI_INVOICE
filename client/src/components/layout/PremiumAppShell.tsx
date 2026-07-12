@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { brand, focusRing } from '../../theme/tokens';
+import { focusRing } from '../../theme/tokens';
 import { useTheme } from '../../theme/useTheme';
 import { cn } from '../../lib/cn';
 import { useLocation } from "react-router-dom";
