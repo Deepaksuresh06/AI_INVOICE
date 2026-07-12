@@ -1,31 +1,20 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useRef, useMemo } from "react";
+import { toast } from "react-hot-toast";
+import { UploadCloud, Sparkles } from "lucide-react";
 import api from "../../api/axios";
 
-type Invoice = {
-  _id: string;
-  vendor: string;
-  amount: number;
-  invoiceNumber: string;
-};
-type InvoiceStats = {
-  totalInvoices: number;
-  totalAmount: number;
-  averageAmount: number;
-  vendors: number;
+type UploadCardProps = {
+  onUploadSuccess: () => Promise<void> | void;
 };
 
-function UploadCard() {
+function UploadCard( {onUploadSuccess}: UploadCardProps) {
 
     const inputRef = useRef<HTMLInputElement>(null);
     const [file, setFile] = useState<File | null>(null);
     const [uploadError, setUploadError] = useState<string | null>(null);
     const [uploading, setUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
-    const [loadingInvoices, setLoadingInvoices] = useState(false);
-    const [invoices, setInvoices] = useState<Invoice[]>([]);
-    const [loadingStats, setLoadingStats] = useState(false);
-    const [invoiceStats, setInvoiceStats] = useState<InvoiceStats | null>(null);
     
     const canUpload = !!file && !uploading;
     const supportsPreview = 
@@ -35,39 +24,6 @@ function UploadCard() {
 
     const [stage, setStage] = 
         useState<"idle" | "uploading" | "processing" | "success">("idle");
-
-    const fetchInvoices = async () => {
-        setLoadingInvoices(true);
-        try {
-        const response = await api.get("/invoices");
-        const backendInvoices = response.data.data;
-        const mappedInvoices: Invoice[] = (backendInvoices ?? []).map((inv: any) => ({
-            _id: inv._id,
-            vendor: inv.supplier ?? "",
-            amount: inv.total ?? 0,
-            invoiceNumber: inv.invoice_number ?? "",
-        }));
-        setInvoices(mappedInvoices);
-        } catch (error) {
-        alert("Error in fetching invoices. Check console for details.");
-        console.error("Error fetching invoices:", error);
-        } finally {
-        setLoadingInvoices(false);
-        }
-    };
-    const fetchInvoiceStats = async () => {
-        setLoadingStats(true);
-        try {
-        const response = await api.get("/invoices/stats");
-        const data = response.data;
-        setInvoiceStats(data.data);
-        } catch (error) {
-        alert("Error fetching invoice stats. Check console for details.");
-        console.error("Error fetching invoice stats:", error);
-        } finally {
-        setLoadingStats(false);
-        }
-    };
 
     const uploadFile = async (fileToUpload: File) => {
         const formData = new FormData();
@@ -93,9 +49,7 @@ function UploadCard() {
             setUploadProgress(100);
             setStage("processing");
 
-            // backend already processed + saved when we return
-            await fetchInvoiceStats();
-            await fetchInvoices();
+            await onUploadSuccess();
 
             setStage("success");
             await new Promise((r) => setTimeout(r, 500));
@@ -116,7 +70,7 @@ function UploadCard() {
             setUploadProgress(0);
 
             setUploadError(backendMessage);
-            alert(`Upload failed: ${backendMessage}`);
+            toast.error(backendMessage);
         } 
         finally {
             setUploading(false);
@@ -146,18 +100,24 @@ function UploadCard() {
 
     return (
         <motion.div
-            className="bg-white/80 backdrop-blur border border-white/70 rounded-2xl shadow-sm p-6"
+            className="
+            relative overflow-hidden bg-surface-glass backdrop-blur border
+            border-border rounded-3xl shadow-glass p-7
+            transition-all duration-300"
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.08 }}
           >
+            <div className="
+            absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-start via-brand-mid to-brand-end"
+            />
             <div className="flex items-start justify-between gap-4 mb-5">
               <div>
-                <h2 className="text-xl font-bold text-slate-900">Upload Invoice</h2>
-                <p className="text-slate-500 text-sm mt-1">PDF, PNG, JPG up to 5MB</p>
+                <h2 className="text-2xl font-bold text-content">Upload Invoice</h2>
+                <p className="text-content-muted">PDF, PNG, JPG up to 5MB</p>
               </div>
               <div className="h-10 w-10 rounded-2xl bg-cyan-50 text-cyan-700 flex items-center justify-center">
-                <span className="text-lg">📤</span>
+                <span className="text-lg"><UploadCloud className="w-6 h-6 text-brand-start" /></span>
               </div>
             </div>
 
@@ -166,7 +126,7 @@ function UploadCard() {
               onDrop={handleDrop}
               onDragOver={(e) => e.preventDefault()}
               className={`relative border-2 border-dashed rounded-2xl p-6 sm:p-10 text-center cursor-pointer transition
-                ${canUpload ? "border-cyan-200 bg-cyan-50/20 hover:bg-cyan-50/40" : "border-slate-200 bg-slate-50"}`}
+                ${canUpload ? "border-brand-start bg-brand-start/5 hover:bg-brand-start/10" : "border-border bg-surface-elevated"}`}
             >
               <input
                 ref={inputRef}
@@ -178,17 +138,17 @@ function UploadCard() {
               />
 
               <motion.div
-                className="mx-auto mb-3 h-14 w-14 rounded-2xl bg-white/80 border border-slate-100 flex items-center justify-center"
+                className="mx-auto mb-3 h-14 w-14 rounded-2xl bg-surface-elevated border border-border flex items-center justify-center"
                 animate={uploading ? { rotate: 360 } : undefined}
                 transition={{ duration: 0.6, ease: "linear", repeat: uploading ? Infinity : 0 }}
               >
-                <span className="text-3xl">🧠</span>
+                <span className="text-3xl"><Sparkles className="w-8 h-8 text-brand-start"/></span>
               </motion.div>
 
-              <p className="text-base sm:text-lg font-semibold text-slate-900">
+              <p className="text-base sm:text-lg font-semibold text-content">
                 Drag & Drop or Click to Browse
               </p>
-              <p className="text-slate-500 text-sm mt-2">
+              <p className="text-content-muted text-sm mt-2">
                 We’ll extract vendor, totals, and line items.
               </p>
             </div>
@@ -199,7 +159,7 @@ function UploadCard() {
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -8 }}
-                  className="mt-6 rounded-2xl border border-slate-100 bg-slate-50 p-4"
+                  className="mt-6 rounded-2xl border border-border bg-surface-elevated p-4"
                 >
                   <div className="flex items-center gap-4">
                     {supportsPreview ? (
@@ -209,14 +169,14 @@ function UploadCard() {
                         className="w-16 h-16 rounded-2xl object-cover border border-slate-100"
                       />
                     ) : (
-                      <div className="w-16 h-16 rounded-2xl bg-white border border-slate-100 flex items-center justify-center">
+                      <div className="w-16 h-16 rounded-2xl bg-surface border border-border flex items-center justify-center">
                         <span className="text-3xl">📄</span>
                       </div>
                     )}
 
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-slate-900 truncate">{file.name}</p>
-                      <p className="text-slate-500 text-sm">
+                      <p className="font-semibold text-cover truncate">{file.name}</p>
+                      <p className="text-cover-muted text-sm">
                         {((file.size || 0) / 1024).toFixed(2)} KB
                       </p>
                     </div>
@@ -224,7 +184,7 @@ function UploadCard() {
                     <button
                       onClick={() => setFile(null)}
                       disabled={uploading}
-                      className="px-3 py-2 rounded-xl bg-red-50 text-red-700 hover:bg-red-100 transition disabled:opacity-60"
+                      className="px-3 py-2 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500/20 transition disabled:opacity-60"
                     >
                       Remove
                     </button>
@@ -355,7 +315,7 @@ function UploadCard() {
                 whileTap={canUpload ? { scale: 0.99 } : undefined}
                 onClick={handleUpload}
                 disabled={!canUpload}
-                className="w-full rounded-2xl bg-slate-900 text-white py-3.5 font-semibold shadow-sm hover:bg-slate-800 transition disabled:bg-slate-300 disabled:cursor-not-allowed"
+                className=" w-full rounded-2xl bg-gradient-to-r from-brand-start via-brand-mid to-brand-end text-white py-3.5 font-semibold shadow-xl transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span className="inline-flex items-center justify-center gap-2">
                   {uploading ? (
@@ -367,7 +327,7 @@ function UploadCard() {
                 </span>
               </motion.button>
 
-              <p className="text-center text-xs text-slate-500 mt-3">
+              <p className="text-center text-xs text-content-muted mt-3">
                 Tip: use a clear PDF/image for best extraction.
               </p>
             </div>
