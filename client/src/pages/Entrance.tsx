@@ -6,7 +6,7 @@ function Entrance() {
   const navigate = useNavigate();
 
   return (
-    <div className="relative flex h-screen w-screen overflow-hidden items-center justify-center">
+    <div className="relative flex h-screen w-screen overflow-hidden items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-black">
       <div className="relative z-20 flex max-w-5xl flex-col items-center px-6 text-center">
         {/* AI Badge */}
         <motion.div

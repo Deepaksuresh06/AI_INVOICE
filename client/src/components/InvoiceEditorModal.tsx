@@ -87,6 +87,56 @@ function clampItems(items: InvoiceItem[], minLen = 1): InvoiceItem[] {
 
 
 export default function InvoiceEditorModal({ details, onClose, onUpdated }: Props) {
+
+  const inputClass = `
+w-full rounded-xl border px-3 py-2 outline-none
+bg-white dark:bg-slate-800
+text-slate-900 dark:text-white
+border-slate-200 dark:border-slate-700
+placeholder:text-slate-400 dark:placeholder:text-slate-500
+focus:ring-2 focus:ring-cyan-300
+transition-colors
+`;
+
+const cardClass = `
+rounded-3xl
+border border-slate-100 dark:border-white/10
+bg-slate-50 dark:bg-slate-800/40
+`;
+
+const secondaryButtonClass = `
+px-3 py-2 rounded-xl
+bg-white dark:bg-slate-800
+border border-slate-200 dark:border-slate-700
+text-slate-900 dark:text-white
+hover:bg-slate-50 dark:hover:bg-slate-700
+font-semibold
+transition-colors
+`;
+
+const dangerButtonClass = `
+px-3 py-2 rounded-xl
+bg-red-50 dark:bg-red-500/10
+border border-red-100 dark:border-red-500/20
+text-red-700 dark:text-red-300
+hover:bg-red-100 dark:hover:bg-red-500/20
+font-semibold
+transition-colors
+`;
+
+const saveButtonClass = `
+px-4 py-2 rounded-xl
+bg-slate-900 text-white
+hover:bg-slate-800
+dark:bg-cyan-500
+dark:hover:bg-cyan-400
+dark:text-slate-900
+font-semibold
+disabled:bg-slate-300
+disabled:cursor-not-allowed
+transition-colors
+`;
+
   const [form, setForm] = useState<{
     invoice_number: string;
     date: string;
@@ -303,7 +353,7 @@ export default function InvoiceEditorModal({ details, onClose, onUpdated }: Prop
 
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-[9999] flex items-start justify-center overflow-y-auto p-4 pt-24"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -313,7 +363,10 @@ export default function InvoiceEditorModal({ details, onClose, onUpdated }: Prop
       <div className="absolute inset-0 bg-slate-900/40 backdrop-blur" onClick={closeWithWarning} />
 
       <motion.div
-        className="relative w-full max-w-4xl bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden"
+        className="relative w-full max-w-4xl rounded-3xl overflow-hidden
+          bg-white dark:bg-slate-900
+          border border-slate-200 dark:border-white/10
+          shadow-2xl"
         initial={{ opacity: 0, y: 10, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 10, scale: 0.98 }}
@@ -345,7 +398,7 @@ export default function InvoiceEditorModal({ details, onClose, onUpdated }: Prop
           </div>
         </div>
 
-        <div className="p-5 sm:p-6 overflow-y-auto max-h-[70vh]">
+        <div className="p-5 sm:p-6 overflow-y-auto max-h-[calc(100vh-10rem)]">
 
           <AnimatePresence>
             {toast && (
@@ -356,8 +409,9 @@ export default function InvoiceEditorModal({ details, onClose, onUpdated }: Prop
                 exit={{ opacity: 0, y: -6 }}
                 className={
                   toast.type === "success"
-                    ? "mb-4 rounded-2xl bg-emerald-50 border border-emerald-100 px-4 py-3 text-emerald-800 font-semibold"
-                    : "mb-4 rounded-2xl bg-red-50 border border-red-100 px-4 py-3 text-red-800 font-semibold"
+                    ? "mb-4 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500 text-emerald-800 dark:text-emerald-300 px-4 py-3 font-semibold"
+
+                    : "mb-4 rounded-2xl bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 text-red-800 dark:text-red-300 px-4 py-3 font-semibold"
                 }
               >
                 {toast.message}
@@ -366,7 +420,7 @@ export default function InvoiceEditorModal({ details, onClose, onUpdated }: Prop
           </AnimatePresence>
 
           {saveError && (
-            <div className="mb-4 rounded-2xl bg-red-50 border border-red-100 px-4 py-3 text-red-800 font-semibold">
+            <div className="mb-4 rounded-2xl bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 px-4 py-3 text-red-800 dark:text-red-300 font-semibold">
               {saveError}
             </div>
           )}
@@ -376,9 +430,11 @@ export default function InvoiceEditorModal({ details, onClose, onUpdated }: Prop
               <input
                 value={form.invoice_number}
                 onChange={(e) => setField({ invoice_number: e.target.value })}
-                className={`w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-cyan-300 ${
-                  fieldErrors.invoice_number ? "border-red-200" : "border-slate-200"
-                }`}
+                className={`${inputClass} ${
+                  fieldErrors.invoice_number
+                  ? "border-red-500"
+                  : ""
+                  }`}
               />
             </Field>
 
@@ -387,9 +443,11 @@ export default function InvoiceEditorModal({ details, onClose, onUpdated }: Prop
                 value={form.date}
                 onChange={(e) => setField({ date: e.target.value })}
                 placeholder="YYYY-MM-DD"
-                className={`w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-cyan-300 ${
-                  fieldErrors.date ? "border-red-200" : "border-slate-200"
-                }`}
+                className={`${inputClass} ${
+                  fieldErrors.date
+                  ? "border-red-500"
+                  : ""
+                  }`}
               />
             </Field>
 
@@ -397,8 +455,10 @@ export default function InvoiceEditorModal({ details, onClose, onUpdated }: Prop
               <input
                 value={form.supplier}
                 onChange={(e) => setField({ supplier: e.target.value })}
-                className={`w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-cyan-300 ${
-                  fieldErrors.supplier ? "border-red-200" : "border-slate-200"
+                className={`${inputClass} ${
+                fieldErrors.supplier
+                ? "border-red-500"
+                : ""
                 }`}
               />
             </Field>
@@ -407,8 +467,10 @@ export default function InvoiceEditorModal({ details, onClose, onUpdated }: Prop
               <input
                 value={form.buyer}
                 onChange={(e) => setField({ buyer: e.target.value })}
-                className={`w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-cyan-300 ${
-                  fieldErrors.buyer ? "border-red-200" : "border-slate-200"
+                className={`${inputClass} ${
+                fieldErrors.buyer
+                ? "border-red-500"
+                : ""
                 }`}
               />
             </Field>
@@ -419,9 +481,11 @@ export default function InvoiceEditorModal({ details, onClose, onUpdated }: Prop
               <select
                 value={form.currency}
                 onChange={(e) => setField({ currency: e.target.value as any })}
-                className={`w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-cyan-300 ${
-                  fieldErrors.currency ? "border-red-200" : "border-slate-200"
-                }`}
+                  className={`${inputClass} ${
+                  fieldErrors.currency
+                  ? "border-red-500"
+                  : ""
+                  }`}
               >
                 <option value="INR">INR</option>
                 <option value="USD">USD</option>
@@ -434,19 +498,25 @@ export default function InvoiceEditorModal({ details, onClose, onUpdated }: Prop
               <input
                 value={form.subtotal}
                 onChange={(e) => setField({ subtotal: e.target.value })}
-                className={`w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-cyan-300 ${
-                  fieldErrors.subtotal ? "border-red-200" : "border-slate-200"
+                className={`${inputClass} ${
+                fieldErrors.subtotal
+                ? "border-red-500"
+                : ""
                 }`}
               />
-              <div className="mt-1 text-xs text-slate-500">Auto from items: {derived.subtotalFromItems}</div>
+              <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                Auto from items: {derived.subtotalFromItems}
+              </div>
             </Field>
 
             <Field label="Tax" required error={fieldErrors.tax}>
               <input
                 value={form.tax}
                 onChange={(e) => setField({ tax: e.target.value })}
-                className={`w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-cyan-300 ${
-                  fieldErrors.tax ? "border-red-200" : "border-slate-200"
+                className={`${inputClass} ${
+                fieldErrors.tax
+                ? "border-red-500"
+                : ""
                 }`}
               />
             </Field>
@@ -455,19 +525,23 @@ export default function InvoiceEditorModal({ details, onClose, onUpdated }: Prop
               <input
                 value={form.total}
                 onChange={(e) => setField({ total: e.target.value })}
-                className={`w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-cyan-300 ${
-                  fieldErrors.total ? "border-red-200" : "border-slate-200"
+                className={`${inputClass} ${
+                fieldErrors.total
+                ? "border-red-500"
+                : ""
                 }`}
               />
-              <div className="mt-1 text-xs text-slate-500">Auto: {derived.totalFromItems}</div>
+              <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                Auto: {derived.totalFromItems}
+              </div>
             </Field>
           </div>
 
-          <div className="mt-6 rounded-3xl border border-slate-100 bg-slate-50 p-4">
+          <div className={`${cardClass} mt-6 p-4`}>
             <div className="flex items-center justify-between gap-3 mb-3">
               <div>
-                <p className="text-sm font-semibold text-slate-900">Items</p>
-                <p className="text-xs text-slate-500 mt-1">Edit line item name, quantity, and price. Total is quantity × price.</p>
+                <p className="text-sm font-semibold text-slate-900 dark:text-white">Items</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Edit line item name, quantity, and price. Total is quantity × price.</p>
               </div>
 
               <button
@@ -478,7 +552,7 @@ export default function InvoiceEditorModal({ details, onClose, onUpdated }: Prop
                     items: clampItems([...form.items, { name: "", quantity: 1, price: 0, total: 0 }], 1),
                   });
                 }}
-                className="px-3 py-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 font-semibold text-sm"
+                className={`${secondaryButtonClass} text-sm`}
               >
                 + Add Item
               </button>
@@ -506,8 +580,8 @@ export default function InvoiceEditorModal({ details, onClose, onUpdated }: Prop
                           setDirty(true);
                           setSaveError(null);
                         }}
-                        className={`w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-cyan-300 ${
-                          fieldErrors[nameKey] ? "border-red-200" : "border-slate-200"
+                        className={`${inputClass} ${
+                          fieldErrors[nameKey] ? "border-red-500" : ""
                         }`}
                       />
                     </Field>
@@ -531,8 +605,8 @@ export default function InvoiceEditorModal({ details, onClose, onUpdated }: Prop
                         type="number"
                         step="1"
                         min="0"
-                        className={`w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-cyan-300 ${
-                          fieldErrors[qtyKey] ? "border-red-200" : "border-slate-200"
+                        className={`${inputClass} ${
+                        fieldErrors[qtyKey] ? "border-red-500" : ""
                         }`}
                       />
                     </Field>
@@ -556,14 +630,19 @@ export default function InvoiceEditorModal({ details, onClose, onUpdated }: Prop
                         type="number"
                         step="0.01"
                         min="0"
-                        className={`w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-cyan-300 ${
-                          fieldErrors[priceKey] ? "border-red-200" : "border-slate-200"
+                        className={`${inputClass} ${
+                          fieldErrors[priceKey] ? "border-red-500" : ""
                         }`}
                       />
                     </Field>
 
                     <div className="sm:col-span-2">
-                      <div className="rounded-xl border border-slate-200 bg-white px-3 py-2">
+                      <div className="
+                        rounded-xl
+                        border border-slate-200 dark:border-slate-700
+                        bg-white dark:bg-slate-800
+                        px-3 py-2
+                        ">
                         <div className="text-xs font-semibold text-slate-500">Total</div>
                         <div className="text-sm font-bold text-emerald-700">{(Number(it.quantity) || 0) * (Number(it.price) || 0)}</div>
                       </div>
@@ -579,7 +658,10 @@ export default function InvoiceEditorModal({ details, onClose, onUpdated }: Prop
                           });
                         }}
                         disabled={saving || form.items.length <= 1}
-                        className="hidden sm:inline-flex px-3 py-2 rounded-xl bg-red-50 text-red-700 border border-red-100 hover:bg-red-100 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                        className={`${dangerButtonClass}
+                          hidden sm:inline-flex
+                          disabled:opacity-50
+                          disabled:cursor-not-allowed`}
                       >
                         Remove
                       </button>
@@ -591,11 +673,17 @@ export default function InvoiceEditorModal({ details, onClose, onUpdated }: Prop
           </div>
         </div>
 
-        <div className="p-5 sm:p-6 border-t border-slate-100 flex items-center justify-between gap-3">
+        <div className="p-5 sm:p-6 border-t border-slate-200 dark:border-white/10 flex items-center justify-between gap-3">
           <p className="text-xs text-slate-500">
             {saving ? (
               <span className="inline-flex items-center gap-2">
-                <span className="inline-flex h-4 w-4 animate-spin rounded-full border-2 border-slate-200 border-t-slate-900" />
+                <span className="
+                inline-flex h-4 w-4 animate-spin
+                rounded-full
+                border-2
+                border-slate-300 dark:border-slate-600
+                border-t-slate-900 dark:border-t-cyan-400
+                " />
                 Saving...
               </span>
             ) : (
@@ -610,7 +698,7 @@ export default function InvoiceEditorModal({ details, onClose, onUpdated }: Prop
               type="button"
               onClick={closeWithWarning}
               disabled={saving}
-              className="px-4 py-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 font-semibold disabled:opacity-60"
+              className={secondaryButtonClass}
             >
               Cancel
             </button>
@@ -620,7 +708,7 @@ export default function InvoiceEditorModal({ details, onClose, onUpdated }: Prop
               onClick={() => void save()}
               disabled={saving}
               whileTap={{ scale: 0.98 }}
-              className="px-4 py-2 rounded-xl bg-slate-900 text-white font-semibold hover:bg-slate-800 disabled:bg-slate-300 disabled:cursor-not-allowed"
+              className={saveButtonClass}
             >
               {saving ? "Saving..." : "Save"}
             </motion.button>

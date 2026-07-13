@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 
 export type Theme = 'light' | 'dark'
 
@@ -32,13 +32,15 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(getInitialTheme)
 
   useEffect(() => {
-    applyThemeToDocument(theme)
+    const effectiveTheme =
+      location.pathname === "/" ? "dark" : theme;
+
+    applyThemeToDocument(effectiveTheme);
+
     try {
-      localStorage.setItem(STORAGE_KEY, theme)
-    } catch {
-      /* ignore storage errors */
-    }
-  }, [theme])
+      localStorage.setItem(STORAGE_KEY, theme);
+    } catch {}
+  }, [theme, location.pathname]);
 
   const setTheme = useCallback((next: Theme) => {
     setThemeState(next)

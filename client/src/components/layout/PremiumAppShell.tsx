@@ -31,9 +31,8 @@ export default function PremiumAppShell({ children }: { children: React.ReactNod
                 </div>
 
                 <div className="min-w-0">
-                  <h1 className="text-lg font-black tracking-tight">
-                    <span className="text-content">Invoice</span>
-                    <span className="bg-gradient-brand bg-clip-text text-transparent">IQ</span>
+                  <h1 className="text-lg font-black tracking-tight text-content">
+                    InvoiceIQ
                   </h1>
                 </div>
               </div>

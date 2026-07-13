@@ -6,21 +6,22 @@ import "./App.css";
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <BrowserRouter>
+    <BrowserRouter>
+      <ThemeProvider>
         <AppRoutes />
-      </BrowserRouter>
+      </ThemeProvider>
 
       <Toaster
         toastOptions={{
-          className: 'bg-surface-elevated text-content border border-border shadow-md',
+          className:
+            "bg-surface-elevated text-content border border-border shadow-md",
           style: {
-            background: 'var(--color-surface-elevated)',
-            color: 'var(--color-content)',
-            border: '1px solid var(--color-border)',
+            background: "var(--color-surface-elevated)",
+            color: "var(--color-content)",
+            border: "1px solid var(--color-border)",
           },
         }}
       />
-    </ThemeProvider>
+    </BrowserRouter>
   );
 }

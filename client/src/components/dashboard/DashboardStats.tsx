@@ -100,7 +100,7 @@ function DashboardStats({ loadingStats, invoiceStats }: DashboardStatsProps) {
                         <div className="flex items-start justify-between gap-3">
                         <div>
                             <p className="text-content-muted text-sm font-medium">{card.label}</p>
-                            <p className="mt-3 text-3xl
+                            {/* <p className="mt-3 text-3xl
                                 sm:text-4xl
                                 font-black
                                 tracking-tight
@@ -115,6 +115,14 @@ function DashboardStats({ loadingStats, invoiceStats }: DashboardStatsProps) {
                                 card.value
                             )}
 
+                            </p> */}
+
+                            <p
+                            className="mt-3 text-3xl sm:text-4xl font-black tracking-tight text-content"
+                            >
+                            {typeof card.value === "number"
+                                ? card.value
+                                : card.value}
                             </p>
                         </div>
 

@@ -47,15 +47,21 @@ function UploadCard( {onUploadSuccess}: UploadCardProps) {
 
             window.clearInterval(timer);
             setUploadProgress(100);
-            setStage("processing");
+            setStage("success");
+
+            setUploadProgress(100);
+
+            await new Promise((r) => setTimeout(r, 700));
+
+            toast.success("Invoice uploaded successfully 🎉");
 
             await onUploadSuccess();
-
-            setStage("success");
-            await new Promise((r) => setTimeout(r, 500));
+            await new Promise((r) => setTimeout(r, 800));
 
             setFile(null);
             if (inputRef.current) inputRef.current.value = "";
+
+            setUploading(false);
         } 
         catch (error: any) {
             console.error("Error uploading file:", error);
@@ -73,7 +79,7 @@ function UploadCard( {onUploadSuccess}: UploadCardProps) {
             toast.error(backendMessage);
         } 
         finally {
-            setUploading(false);
+            window.clearInterval(timer);
         }
     };
     
@@ -211,18 +217,18 @@ function UploadCard( {onUploadSuccess}: UploadCardProps) {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
-                  className="mt-5 rounded-3xl border border-slate-100 bg-gradient-to-b from-white/70 to-slate-50 p-5"
+                  className="fixed top-24 right-6 z-[9999] w-[420px] max-w-[calc(100vw-2rem)] rounded-3xl border border-white/10 bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl shadow-2xl p-5"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className="text-sm font-semibold text-slate-900">AI Processing</p>
-                      <p className="text-xs text-slate-500 mt-1">
+                      <p className="text-sm font-semibold text-slate-900 dark:text-white">AI Processing</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                         {stage === "uploading" && "Uploading file..."}
                         {stage === "processing" && "Running extraction pipeline..."}
                         {stage === "success" && "Completed"}
                       </p>
                     </div>
-                    <div className="h-10 w-10 rounded-2xl bg-cyan-50 text-cyan-700 flex items-center justify-center">
+                    <div className="h-10 w-10 rounded-2xl bg-cyan-100 dark:bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 flex items-center justify-center">
                       <span className="text-lg">⚡</span>
                     </div>
                   </div>
@@ -251,10 +257,10 @@ function UploadCard( {onUploadSuccess}: UploadCardProps) {
                             <div
                               className={
                                 done
-                                  ? "h-8 w-8 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-100"
+                                  ? "h-8 w-8 rounded-2xl bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 flex items-center justify-center border border-emerald-200 dark:border-emerald-500/20"
                                   : current
-                                    ? "h-8 w-8 rounded-2xl bg-cyan-50 text-cyan-700 flex items-center justify-center border border-cyan-100"
-                                    : "h-8 w-8 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center border border-slate-100"
+                                    ? "h-8 w-8 rounded-2xl bg-cyan-100 dark:bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 flex items-center justify-center border border-cyan-200 dark:border-cyan-500/20"
+                                    : "h-8 w-8 rounded-2xl bg-slate-100 dark:bg-slate-500/20 text-slate-400 dark:text-slate-300 flex items-center justify-center border border-slate-200 dark:border-slate-500/20"
                               }
                             >
                               {done ? (
@@ -274,10 +280,10 @@ function UploadCard( {onUploadSuccess}: UploadCardProps) {
                               <p
                                 className={
                                   done
-                                    ? "text-sm font-semibold text-slate-900"
+                                    ? "text-sm font-semibold text-slate-900 dark:text-white"
                                     : current
                                       ? "text-sm font-semibold text-slate-900"
-                                      : "text-sm text-slate-500"
+                                      : "text-sm text-slate-500 dark:text-slate-400"
                                 }
                               >
                                 {step.label}
@@ -290,12 +296,12 @@ function UploadCard( {onUploadSuccess}: UploadCardProps) {
 
                     <div className="mt-5">
                       <div className="flex items-center justify-between mb-2">
-                        <p className="text-xs font-semibold text-slate-600">Progress</p>
-                        <p className="text-xs text-slate-500">{uploadProgress}%</p>
+                        <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">Progress</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">{uploadProgress}%</p>
                       </div>
-                      <div className="h-2 w-full rounded-full bg-slate-200/70 overflow-hidden">
+                      <div className="h-2 w-full rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
                         <motion.div
-                          className="h-full bg-cyan-500"
+                          className="h-full bg-gradient-to-r from-cyan-500 to-blue-500"
                           style={{ width: `${uploadProgress}%` }}
                           initial={{ width: "0%" }}
                           animate={{ width: `${uploadProgress}%` }}

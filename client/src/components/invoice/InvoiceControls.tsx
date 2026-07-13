@@ -1,4 +1,5 @@
 import type { SortKey, SortState } from "../../types/invoice";
+import { Search, Filter, ArrowDownUp, Download} from "lucide-react";
 
 type Props = {
   query: string;
@@ -25,20 +26,25 @@ type Props = {
 
 export default function InvoiceControls({ query, setQuery, supplier, setSupplier, currency, setCurrency, suppliers, currencies, sort, setSort, pagedCount, filteredCount, exportJSON, exportCSV }: Props) {
   return (
-    <div className="bg-white/70 backdrop-blur border border-white/80 rounded-3xl shadow-sm p-4 sm:p-5 mb-6">
+    <div className=" relative overflow-hidden bg-surface-glass backdrop-blur border border-border rounded-3xl shadow-glass p-5 sm:p-6 mb-8">
+        <div
+            className=" absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-start via-brand-mid to-brand-end"/>
       <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
         {/* Search */}
 
         <div className="md:col-span-5">
-          <label className="text-xs font-semibold text-slate-600">
-            Search
+          <label className="text-xs font-semibold text-content-muted">
+            <span className="flex items-center gap-2">
+                <Search className="w-4 h-4" />
+                Search
+            </span>
           </label>
 
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Invoice #, supplier, buyer, item..."
-            className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 outline-none focus:ring-2 focus:ring-cyan-300"
+            className=" mt-2 w-full rounded-2xl border border-border bg-surface px-4 py-3 text-content outline-none transition-all focus:border-brand-start focus:ring-2 focus:ring-brand-start/20"
           />
         </div>
 
@@ -46,13 +52,16 @@ export default function InvoiceControls({ query, setQuery, supplier, setSupplier
 
         <div className="md:col-span-3">
           <label className="text-xs font-semibold text-slate-600">
-            Supplier
+           <span className="flex items-center gap-2">
+                <Filter className="w-4 h-4" />
+                Supplier
+            </span>
           </label>
 
           <select
             value={supplier}
             onChange={(e) => setSupplier(e.target.value)}
-            className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 outline-none focus:ring-2 focus:ring-cyan-300"
+            className=" mt-2 w-full rounded-2xl border border-border bg-surface px-4 py-3 text-content outline-none transition-all focus:border-brand-start focus:ring-2 focus:ring-brand-start/20"
           >
             <option value="all">All</option>
 
@@ -71,13 +80,16 @@ export default function InvoiceControls({ query, setQuery, supplier, setSupplier
 
         <div className="md:col-span-3">
           <label className="text-xs font-semibold text-slate-600">
-            Currency
+            <span className="flex items-center gap-2">
+              <Filter className="w-4 h-4" />
+              Currency
+            </span>
           </label>
 
           <select
             value={currency}
             onChange={(e) => setCurrency(e.target.value)}
-            className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 outline-none focus:ring-2 focus:ring-cyan-300"
+            className=" mt-2 w-full rounded-2xl border border-border bg-surface px-4 py-3 text-content outline-none transition-all focus:border-brand-start focus:ring-2 focus:ring-brand-start/20"
           >
             <option value="all">All</option>
 
@@ -97,7 +109,10 @@ export default function InvoiceControls({ query, setQuery, supplier, setSupplier
         <div className="md:col-span-1 flex items-end">
           <div className="w-full">
             <label className="text-xs font-semibold text-slate-600">
-              Sort
+              <span className="flex items-center gap-2">
+                <ArrowDownUp className="w-4 h-4" />
+                    Sort
+                </span>
             </label>
 
             <select
@@ -113,7 +128,7 @@ export default function InvoiceControls({ query, setQuery, supplier, setSupplier
                   dir,
                 });
               }}
-              className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 outline-none focus:ring-2 focus:ring-cyan-300"
+              className=" mt-2 w-full rounded-2xl border border-border bg-surface px-4 py-3 text-content outline-none transition-all focus:border-brand-start focus:ring-2 focus:ring-brand-start/20"
             >
               <option value="createdAt:desc">Newest</option>
               <option value="createdAt:asc">Oldest</option>
@@ -157,13 +172,13 @@ export default function InvoiceControls({ query, setQuery, supplier, setSupplier
       {/* Bottom */}
 
       <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div className="text-sm text-slate-600">
+        <div className="text-sm text-content-muted">
           Showing{" "}
-          <span className="font-semibold">
+          <span className="font-bold text-content">
             {pagedCount}
           </span>{" "}
           of{" "}
-          <span className="font-semibold">
+          <span className="font-bold text-content">
             {filteredCount}
           </span>{" "}
           invoices
@@ -172,16 +187,22 @@ export default function InvoiceControls({ query, setQuery, supplier, setSupplier
         <div className="flex gap-2">
           <button
             onClick={exportJSON}
-            className="px-3 py-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 font-semibold text-sm"
+            className=" px-4 py-2.5 rounded-2xl bg-surface-glass border border-border text-content font-semibold transition-all hover:-translate-y-0.5 hover:shadow-md hover:bg-surface-elevated"
           >
-            Export JSON
+            <span className="flex items-center gap-2">
+                <Download className="w-4 h-4"/>
+                JSON
+            </span>
           </button>
 
           <button
             onClick={exportCSV}
-            className="px-3 py-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 font-semibold text-sm"
+            className=" px-4 py-2.5 rounded-2xl bg-surface-glass border border-border text-content font-semibold transition-all hover:-translate-y-0.5 hover:shadow-md hover:bg-surface-elevated"
           >
-            Export CSV
+            <span className="flex items-center gap-2">
+                <Download className="w-4 h-4"/>
+                CSV
+            </span>
           </button>
         </div>
       </div>

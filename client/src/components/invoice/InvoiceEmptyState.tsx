@@ -1,3 +1,5 @@
+import { FileSearch, RotateCcw } from "lucide-react";
+
 type Props = {
   hasActiveFilters: boolean;
   clearFilters: () => void;
@@ -8,16 +10,18 @@ export default function InvoiceEmptyState({
   clearFilters,
 }: Props) {
   return (
-    <div className="py-12 sm:py-16 text-center">
-      <div className="mx-auto h-14 w-14 rounded-2xl bg-slate-100/70 border border-slate-200/70 flex items-center justify-center">
-        <span className="text-2xl">🧾</span>
+
+    <div className="py-14 sm:py-20 text-center">
+      <div className="mx-auto mt-3 h-px w-20 bg-gradient-to-r from-transparent via-brand-start/40 to-transparent" />
+      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-brand-start/10 border border-brand-start/20">
+        <span className="text-2xl"><FileSearch className="h-8 w-8 text-brand-start" /></span>
       </div>
 
-      <p className="mt-4 font-bold text-slate-900">
+      <p className="mt-5 text-xl font-bold text-content">
         No invoices found
       </p>
 
-      <p className="text-sm text-slate-500 mt-1">
+      <p className="mt-2 text-sm leading-6 text-content-muted">
         {hasActiveFilters
           ? "Try adjusting search/filter criteria."
           : "Create invoices or adjust your filters to see results."}
@@ -27,9 +31,12 @@ export default function InvoiceEmptyState({
         <div className="mt-6">
           <button
             onClick={clearFilters}
-            className="inline-flex items-center justify-center rounded-xl bg-slate-900 text-white px-4 py-2 text-sm font-semibold hover:bg-slate-800 transition"
+            className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-brand-start to-brand-end px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
           >
-            Clear Filters
+            <>
+                <RotateCcw className="w-4 h-4" />
+                Clear Filters
+                </>
           </button>
         </div>
       )}

@@ -10,6 +10,7 @@ import InvoicePagination from "../components/invoice/InvoicePagination";
 import InvoiceEmptyState from "../components/invoice/InvoiceEmptyState";
 import InvoiceSkeleton from "../components/invoice/InvoiceSkeleton";
 import useInvoices from "../hooks/useInvoices";
+import { toast } from "react-hot-toast";
 
 import type { Invoice, SortState } from "../types/invoice";
 import { downloadText, toCSV } from "../utils/invoiceHelpers";
@@ -224,8 +225,9 @@ export default function Invoices() {
       await api.delete(`/invoices/${id}`);
 
       await loadInvoices();
-    } catch (error: any) {
-      alert(
+    } 
+    catch (error: any) {
+      toast.error(
         error?.response?.data?.message ||
           error?.message ||
           "Delete failed"
@@ -307,12 +309,12 @@ export default function Invoices() {
   };
 
   return (
-        <div className="min-h-screen bg-slate-50">
-      <div className="max-w-7xl mx-auto px-5 sm:px-6 py-8">
+      <div className="min-h-screen bg-surface transition-colors duration-500">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-10 space-y-8">
 
         <InvoiceHeader
-          view={view}
-          setView={setView}
+        view={view}
+        setView={setView}
         />
 
         <InvoiceControls
@@ -333,7 +335,7 @@ export default function Invoices() {
         />
 
         {error && (
-          <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4">
+          <div className="rounded-2xl border border-red-200 bg-red-50/70 backdrop-blur p-4 shadow-sm">
             <p className="font-semibold text-red-800">
               Failed
             </p>
@@ -344,6 +346,7 @@ export default function Invoices() {
           </div>
         )}
 
+        <AnimatePresence mode="wait">
         {loading ? (
           <InvoiceSkeleton />
         ) : filteredSorted.length === 0 ? (
@@ -378,6 +381,7 @@ export default function Invoices() {
             />
           </>
         )}
+        </AnimatePresence>
 
         <AnimatePresence>
           {details && (
