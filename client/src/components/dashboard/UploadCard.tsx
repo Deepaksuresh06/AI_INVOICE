@@ -72,6 +72,8 @@ function UploadCard( {onUploadSuccess}: UploadCardProps) {
                 "Upload failed";
 
             window.clearInterval(timer);
+
+            setUploading(false);
             setStage("idle");
             setUploadProgress(0);
 
